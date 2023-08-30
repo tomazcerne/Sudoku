@@ -6,12 +6,16 @@ import javax.swing.border.Border;
 
 public class SudokuPlosca extends JPanel {
 
+    private GUI glavnaPlosca;
     private JLabel[][] sudoku;
     private JLabel aktiven = null;
-    private int aktI, aktJ; 
+    private int aktI, aktJ;
+    private static final String napacenVpis = "Vpisana števila se ne smejo "+
+     "ponavljati v isti vrstici, stolpcu ali kvadratu";
 
-    public SudokuPlosca() {
-        //this.setBackground(Color.LIGHT_GRAY);
+    public SudokuPlosca(GUI glavnaPlosca) {
+        this.glavnaPlosca = glavnaPlosca;
+
         this.setSize(450, 450);
         this.setBounds(125, 80, 450, 450);
         this.setLayout(null);
@@ -19,9 +23,9 @@ public class SudokuPlosca extends JPanel {
         sudoku = new JLabel[9][9];
         for (int i = 0; i < sudoku.length; i++) {
             for (int j = 0; j < sudoku[i].length; j++) {
+
                 JLabel polje = new JLabel();
                 polje.setBounds(j * 50, i * 50, 50, 50);
-                //polje.setText(String.format("[%d, %d]", i, j));
                 polje.setHorizontalAlignment(SwingConstants.CENTER);
                 polje.setFont(new Font("Arial", Font.BOLD, 25));
 
@@ -32,7 +36,7 @@ public class SudokuPlosca extends JPanel {
                 if (j == 0) { left = debeliRob; }
                 if (j % 3 == 2) { right = debeliRob; }
 
-                Border obroba = BorderFactory.createMatteBorder(top, left, bottom, right, Color.black);
+                Border obroba = BorderFactory.createMatteBorder(top, left, bottom, right, Color.BLACK);
                 polje.setBorder(obroba);
                 polje.addMouseListener(new KlikMiske(this, i, j));
                 polje.setOpaque(true);
@@ -67,7 +71,86 @@ public class SudokuPlosca extends JPanel {
     public void vpisi(String s) {
         if (aktiven != null) {
             aktiven.setText(s);
+            if(preveri()) {
+                glavnaPlosca.prikaziNapako("");
+            }
+            else {
+                glavnaPlosca.prikaziNapako(napacenVpis);
+            }
         }
+    }
+
+    private int stevilka(int i, int j) {
+        String s = sudoku[i][j].getText();
+        if(s.isEmpty()) {
+            return 0;
+        }
+        return Integer.parseInt(s);
+    }
+
+    private boolean preveri() {
+        boolean pravilen = true;
+
+        int[][] stevecPoVrsticah = new int [9][10];
+        int[][] stevecPoStolpcih = new int [9][10];
+        int[][] stevecPoKvadratih = new int [9][10];
+
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                int st = stevilka(i, j);
+                stevecPoVrsticah[i][st]++;
+                stevecPoStolpcih[j][st]++;
+                int kvadrat = 3 * (i / 3) + j / 3;
+                stevecPoKvadratih[kvadrat][st]++;
+            }
+        }
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                int st = stevilka(i, j);
+                int kvadrat = 3 * (i / 3) + j / 3;
+                if (st != 0 && (stevecPoVrsticah[i][st] > 1 ||
+                    stevecPoStolpcih[j][st] > 1 || 
+                    stevecPoKvadratih[kvadrat][st] > 1)
+                    ) {
+                    sudoku[i][j].setForeground(Color.RED);
+                    pravilen = false;
+                }
+                else {
+                    sudoku[i][j].setForeground(Color.BLACK);
+                }
+            }
+        }
+        return pravilen;
+    }
+
+    private int[][] tabeliraj() {
+        int[][]tab = new int[9][9];
+        for (int i = 0; i < tab.length; i++) {
+            for (int j = 0; j < tab[i].length; j++) {
+                tab[i][j] = this.stevilka(i, j);
+            }
+        }
+        return tab;
+    }
+
+    public void resi() {
+        if(preveri()) {
+            glavnaPlosca.prikaziNapako("");
+            int[][] tab = this.tabeliraj();
+            new Resevanje(tab);
+        }
+        else {
+            glavnaPlosca.prikaziNapako(napacenVpis);
+        }
+    }
+
+    public void brisi() {
+        for (JLabel[] vrsta : sudoku) {
+            for (JLabel kvadratek : vrsta) {
+                kvadratek.setText("");
+            }
+        }
+        glavnaPlosca.prikaziNapako("");
     }
 
 }

@@ -12,7 +12,7 @@ class Tipkovnica extends KeyAdapter {
     @Override
     public void keyPressed(KeyEvent e) {
         int koda = e.getKeyCode();
-        if (koda >= '0' && koda <= '9') {
+        if (koda >= '1' && koda <= '9') {
             plosca.vpisi("" + (koda - '0'));
         }
         else if (koda == 8) { //backspace
