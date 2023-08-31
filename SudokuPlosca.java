@@ -10,7 +10,7 @@ public class SudokuPlosca extends JPanel {
     private JLabel[][] sudoku;
     private JLabel aktiven = null;
     private int aktI, aktJ;
-    private static final String napacenVpis = "Vpisana števila se ne smejo "+
+    private static final String NAPACEN_VPIS = "Vpisana števila se ne smejo "+
      "ponavljati v isti vrstici, stolpcu ali kvadratu";
 
     public SudokuPlosca(GUI glavnaPlosca) {
@@ -70,12 +70,14 @@ public class SudokuPlosca extends JPanel {
 
     public void vpisi(String s) {
         if (aktiven != null) {
+            aktiven.setFont(new Font("Arial", Font.BOLD, 25));
+            aktiven.setForeground(Color.BLACK);
             aktiven.setText(s);
             if(preveri()) {
                 glavnaPlosca.prikaziNapako("");
             }
             else {
-                glavnaPlosca.prikaziNapako(napacenVpis);
+                glavnaPlosca.prikaziNapako(NAPACEN_VPIS);
             }
         }
     }
@@ -137,10 +139,23 @@ public class SudokuPlosca extends JPanel {
         if(preveri()) {
             glavnaPlosca.prikaziNapako("");
             int[][] tab = this.tabeliraj();
-            new Resevanje(tab);
+            new Resevanje(tab, glavnaPlosca);
+            this.prikaziResitev(tab);
         }
         else {
-            glavnaPlosca.prikaziNapako(napacenVpis);
+            glavnaPlosca.prikaziNapako(NAPACEN_VPIS);
+        }
+    }
+
+    private void prikaziResitev(int[][] tab) {
+        for (int i = 0; i < sudoku.length; i++) {
+            for (int j = 0; j < sudoku[i].length; j++) {
+                if (stevilka(i, j) == 0 && tab[i][j] != 0) {
+                    sudoku[i][j].setFont(new Font("Arial", Font.PLAIN, 25));
+                    sudoku[i][j].setForeground(new Color(52, 171, 2));
+                    sudoku[i][j].setText(""+tab[i][j]);
+                }
+            }
         }
     }
 
