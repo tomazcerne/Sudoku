@@ -139,7 +139,8 @@ public class SudokuPlosca extends JPanel {
         if(preveri()) {
             glavnaPlosca.prikaziNapako("");
             int[][] tab = this.tabeliraj();
-            new Resevanje(tab, glavnaPlosca);
+            Resevanje algoritem = new Resevanje(tab, glavnaPlosca);
+            tab = algoritem.vrniResitev();
             this.prikaziResitev(tab);
         }
         else {

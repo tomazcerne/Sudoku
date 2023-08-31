@@ -2,26 +2,28 @@ import java.util.*;
 
 public class Resevanje {
 
-    //private GUI glavnaPlosca;
     private int[][] sudoku;
+    private GUI glavnaPlosca;
     private static final String NEMOGOCE =
     "Tak sudoku je nemogoče rešiti v celoti";
 
     public Resevanje (int[][] sudoku, GUI glavnaPlosca) {
         this.sudoku = sudoku;
-        if( !this.resiKlasicno()) {
-            glavnaPlosca.prikaziNapako(NEMOGOCE);
-            return;
-        }
-        if ( !this.resen()) {
-            if( !this.ugibanje()) {
-                glavnaPlosca.prikaziNapako(NEMOGOCE);
-            }
-        }
+        this.glavnaPlosca = glavnaPlosca;
     }
 
-    private boolean ugibanje() {
-        if (this.resen()) {
+    public int[][] vrniResitev() {
+        if ( !this.resi()) {
+            glavnaPlosca.prikaziNapako(NEMOGOCE);    
+        }
+        return this.sudoku;
+    }
+
+    private boolean resi() {
+        if ( !this.klasicniKrog()) {
+            return false;
+        }
+        if (this.resen()) { 
             return true;
         }
         int[] min = this.minimalnoMoznosti();
@@ -31,15 +33,15 @@ public class Resevanje {
         for (int moznost : moznosti) {
             int[][] kopija = this.kopiraj();
             sudoku[iMin][jMin] = moznost;
-            if(this.resiKlasicno()) {
-                return this.ugibanje();
+            if(this.resi()) {
+                return true;
             }
-            sudoku = kopija;
+            this.sudoku = kopija;
         }
         return false;
     }
 
-    private boolean resiKlasicno() {
+    private boolean klasicniKrog() {
 
         int stSprememb = 0;
         do {
@@ -58,7 +60,6 @@ public class Resevanje {
                         sudoku[i][j] = seznam.get(0);
                         stSprememb++;
                     }
-
                 }
             }
         } while (stSprememb > 0);
@@ -103,9 +104,9 @@ public class Resevanje {
     }
 
     private int[] minimalnoMoznosti() {
-        int iMin = 0;
-        int jMin = 0;
-        int stMin = 9;
+        int iMin = -1;
+        int jMin = -1;
+        int stMin = 10;
         for (int i = 0; i < sudoku.length; i++) {
             for (int j = 0; j < sudoku[i].length; j++) {
                 if (sudoku[i][j] != 0) {
